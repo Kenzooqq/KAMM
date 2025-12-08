@@ -1,4 +1,4 @@
-﻿﻿﻿function Test-Admin {
+﻿﻿function Test-Admin {
     $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
     $currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
 }
@@ -282,6 +282,25 @@ function ExecuteCheats {
 }
 
 
+
+
+
+function Attrib {
+    
+    Write-Host "Attrib Hidden" -ForegroundColor DarkRed
+    Write-Host ""
+
+    $path = Read-Host "Cheat Path"
+
+    switch ($path) {
+        "Cheat" { cmd /c "attrib +h $path" }
+    }
+
+}
+
+
+
+
 $line = "=" * 29
 $separator = "-" * 27
 
@@ -291,7 +310,8 @@ ____________________________________________
 |                                           |
 |  1) Clear-Logs        2) Execute          |
 |  3) Stop-Services     4) Hide-Record      |
-|  5) Date-Modificator  6) Extension-Modify |                            
+|  5) Date-Modificator  6) Extension-Modify |
+|  7) Attrib                                |                            
 |___________________________________________|
 "@
 
@@ -306,5 +326,6 @@ switch ($opcion) {
     "4" { HideRecord }
     "5" { DateModificator }
     "6" { ChangeExtension }
+    "7" { Attrib }
     default { Write-Host "Incorrectly Option" -ForegroundColor DarkRed }
 }
