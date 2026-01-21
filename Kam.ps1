@@ -1,20 +1,19 @@
-﻿﻿function Test-Admin {
+function Test-Admin {
     $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
-    $currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+    return $currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
 }
 
 if (!(Test-Admin)) {
     Write-Warning "Por favor, ejecuta este script como administrador."
-    Start-Sleep 10
-    Exit
+    Start-Sleep 5
+    return
 }
 
 Clear-Host
 
 
+
 Write-Host @"
-
-
 
  ██ ▄█▀▄▄▄       ███▄ ▄███▓    ▄▄▄▄ ▓██   ██▓ ██▓███   ▄▄▄        ██████   ██████ 
  ██▄█▒▒████▄    ▓██▒▀█▀ ██▒   ▓█████▄▒██  ██▒▓██░  ██▒▒████▄    ▒██    ▒ ▒██    ▒ 
@@ -27,25 +26,24 @@ Write-Host @"
 ░  ░        ░  ░       ░       ░     ░ ░                    ░  ░      ░        ░  
                                     ░░ ░                                          
 
-
-
 "@ -ForegroundColor DarkRed
 
 
-Write-Host "Kam Bypassing" -ForegroundColor DarkRed
-Write-Host ""
-Write-Host ""
-Write-Host "run this script before the ScreenShare" -ForegroundColor DarkRed
-Write-Host ""
-Write-Host ""
+function LoadingAnimation {
+    $barLength = 20
+    for ($i = 0; $i -le $barLength; $i++) {
+        $bar = '[' + 'o' * $i + ' ' * ($barLength - $i) + ']'
+        Write-Host -NoNewline "`r$bar"
+        Start-Sleep -Milliseconds 80
+    }
+    Write-Host "`nLoaded`n"
+}
 
-Start-Sleep -Seconds 3
+LoadingAnimation
 
-Clear-Host ""
 
 
 Write-Host @"
-
 
  ▄▄▄▄ ▓██   ██▓ ██▓███   ▄▄▄        ██████   ██████  ██▓ ███▄    █   ▄████ 
 ▓█████▄▒██  ██▒▓██░  ██▒▒████▄    ▒██    ▒ ▒██    ▒ ▓██▒ ██ ▀█   █  ██▒ ▀█▒
@@ -58,274 +56,624 @@ Write-Host @"
  ░     ░ ░                    ░  ░      ░        ░   ░           ░       ░ 
       ░░ ░                                                                 
 
-                                                     
 "@ -ForegroundColor DarkRed
 
-function LoadingAnimation {
-    $barLength = 20
-    for ($i = 0; $i -le $barLength; $i++) {
-        $bar = '[' + 'o' * $i + ' ' * ($barLength - $i) + ']'
-        Write-Host -NoNewline "`r$bar"
-        Start-Sleep -Milliseconds 100
+
+function ClearLogs {
+    Write-Host "Clear Logs:" -ForegroundColor Cyan
+    Write-Host "1) Journal"
+    Write-Host "2) Regedit"
+
+    $opcion = Read-Host "Select Option"
+    switch ($opcion) {
+        "1" {
+            cmd /c "fsutil usn deletejournal /d c:"
+            Write-Host "Journal deleted" -ForegroundColor DarkRed
+        }
+        "2" {
+            Write-Host "Clearing Registry logs..." -ForegroundColor DarkRed
+            cmd /c "reg delete HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Compatibility Assistant\Store /f /va"
+        }
     }
-    Write-Host ""
-    Write-Host ""
-    Write-Host "Loaded"
-    Write-Host ""
 }
 
-LoadingAnimation
+function StopServices {
+    Write-Host "1) Bam"
+    Write-Host "2) DPS"
+    Write-Host "3) DiagTrack"
+    Write-Host "4) Sysmain"
+
+    $opcion = Read-Host "Select"
+    switch ($opcion) {
+        "1" { cmd /c "sc stop Bam" }
+        "2" { cmd /c "sc stop Dps" }
+        "3" { cmd /c "sc stop Diagtrack" }
+        "4" { cmd /c "sc stop Sysmain" }
+    }
+}
+
+function DateModificator {
+    $path = Read-Host "Cheat Path"
+    if (!(Test-Path $path)) {
+        Write-Host "Invalid path" -ForegroundColor Red
+        return
+    }
+    (Get-Item $path).LastWriteTime = Get-Date "2023-02-14 12:00"
+    Write-Host "Date modified"
+}
+
+function ChangeExtension {
+    $path = Read-Host "File path"
+    if (!(Test-Path $path)) {
+        Write-Host "File not found"
+        return
+    }
+    $ext = Read-Host "New extension"
+    $dir = Split-Path $path
+    $name = [IO.Path]::GetFileNameWithoutExtension($path)
+    Rename-Item $path (Join-Path $dir "$name.$ext")
+}
+
+function ExecuteCheats {
+    Write-Host "1) Jar"
+    Write-Host "2) Exe"
+    Write-Host "3) Dll"
+
+    $op = Read-Host "Select"
+    $path = Read-Host "Path"
+
+    switch ($op) {
+        "1" { cmd /c "java -jar `"$path`"" }
+        "2" { Start-Process $path }
+        "3" { cmd /c "regsvr32 `"$path`"" }
+    }
+}
+
+function Attrib {
+    $path = Read-Host "Path"
+    if (Test-Path $path) {
+        attrib +h $path
+        Write-Host "Hidden applied"
+    }
+}
+
+function Files-Replace {
+    $src = Read-Host "Legit path"
+    $dst = Read-Host "Cheat path"
+
+    try {
+        Copy-Item $src $dst -Force
+        Write-Host "File replaced"
+    } catch {
+        Write-Host "File in use or access denied" -ForegroundColor Red
+    }
+
+}
+
+
+Function Clicker {
+
+Write-Host "Clicker by Lilith" -ForegroundColor DarkRed
 
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+Write-Host @"
+Made with love by lily<3
+"@ -ForegroundColor Cyan
 
-
-function ClearLogs {
-    Write-Host "Clear Logs:" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "1) Journal"
-    Write-Host "2) Regedit"
-    
-
-    $opcion = Read-Host "Select Option"
-    
-    switch ($opcion) {
-        "1" {
-           
-            Write-Host "Deleting Journal..." -ForegroundColor DarkRed
-            cmd /c "fsutil usn deletejournal /d c:"
-            Write-Host "Journal deleted" -ForegroundColor DarkRed
-        }
-
-        "2" {
-          
-          Write-host "Clear Regedit Logs...." -ForegroundColor DarkRed
-          cmd /c "reg delete HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Compatibility Assistant\Store /f /va  & reg delete HKEY_CURRENT_USER\Software\WinRAR\ArcHistory /f /va & reg delete HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSavePidlMRU\dll /f /va & reg delete HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSavePidlMRU\exe /f /va & reg delete HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSavePidlMRU\exe /f /va & reg delete HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs /f /va & reg delete HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\Shell\MuiCache /f /va & reg delete HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\WordWheelQuery /f /va "
-    }
-}
-}
-
-function HideRecord {
-
-Add-Type @"
+if (-not ([System.Management.Automation.PSTypeName]'Win32').Type) {
+    Add-Type @"
 using System;
 using System.Runtime.InteropServices;
 
-public class WindowHelper {
+public class Win32 {
     [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
-
+    public static extern short GetAsyncKeyState(int vKey);
+    
     [DllImport("user32.dll")]
-    public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
-
-    public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-
-    public static void HideWindowByTitle(string title) {
-        EnumWindows((hWnd, lParam) => {
-            const int SW_HIDE = 0;
-            const int nChars = 256;
-            System.Text.StringBuilder Buff = new System.Text.StringBuilder(nChars);
-            GetWindowText(hWnd, Buff, nChars);
-            if (Buff.ToString().Contains(title)) {
-                ShowWindow(hWnd, SW_HIDE);
-            }
-            return true;
-        }, IntPtr.Zero);
-    }
-
-    public static void ShowWindowByTitle(string title) {
-        EnumWindows((hWnd, lParam) => {
-            const int SW_SHOW = 5;
-            const int nChars = 256;
-            System.Text.StringBuilder Buff = new System.Text.StringBuilder(nChars);
-            GetWindowText(hWnd, Buff, nChars);
-            if (Buff.ToString().Contains(title)) {
-                ShowWindow(hWnd, SW_SHOW);
-            }
-            return true;
-        }, IntPtr.Zero);
-    }
-
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    private static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder lpString, int nMaxCount);
+    public static extern void mouse_event(int dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
+    
+    public const int MOUSEEVENTF_LEFTDOWN = 0x02;
+    public const int MOUSEEVENTF_LEFTUP = 0x04;
+    public const int MOUSEEVENTF_RIGHTDOWN = 0x08;
+    public const int MOUSEEVENTF_RIGHTUP = 0x10;
+    
+    public const int VK_LBUTTON = 0x01;
+    public const int VK_RBUTTON = 0x02;
 }
 "@
+}
 
+$script:isEnabled = $false
+$script:cps = 10
+$script:randomization = 0
+$script:mainTimer = $null
+$script:hotkeyTimer = $null
+$script:hotkeyVK = 0x75  
+$script:hotkeyName = "F6"
+$script:leftLastClick = [DateTime]::MinValue
+$script:rightLastClick = [DateTime]::MinValue
+$script:capturingHotkey = $false
 
-$windowName = "Google Chrome"
+function Test-KeyPressed {
+    param([int]$VirtualKey)
+    $state = [Win32]::GetAsyncKeyState($VirtualKey)
+    return ($state -band 0x8000) -ne 0
+}
 
+function Invoke-Click {
+    param([string]$Button)
+    
+    if ($Button -eq "Left") {
+        [Win32]::mouse_event([Win32]::MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+        [Win32]::mouse_event([Win32]::MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+    } else {
+        [Win32]::mouse_event([Win32]::MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0)
+        [Win32]::mouse_event([Win32]::MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0)
+    }
+}
 
-[WindowHelper]::HideWindowByTitle($windowName)
-Write-Host "Google Hide !."
+# Main Form
+$form = New-Object System.Windows.Forms.Form
+$form.Text = "Lilith Clicker"
+$form.Size = New-Object System.Drawing.Size(420, 520)
+$form.StartPosition = "CenterScreen"
+$form.FormBorderStyle = "None"
+$form.BackColor = [System.Drawing.Color]::FromArgb(32, 32, 32)
+$form.ForeColor = [System.Drawing.Color]::White
 
+# Variables for dragging
+$script:isDragging = $false
+$script:dragStart = New-Object System.Drawing.Point(0, 0)
 
+# Variables for dragging
+$script:isDragging = $false
+$script:dragStart = New-Object System.Drawing.Point(0, 0)
 
+# Custom Title Bar
+$titleBar = New-Object System.Windows.Forms.Panel
+$titleBar.Location = New-Object System.Drawing.Point(0, 0)
+$titleBar.Size = New-Object System.Drawing.Size(420, 35)
+$titleBar.BackColor = [System.Drawing.Color]::FromArgb(24, 24, 24)
+$titleBar.Cursor = [System.Windows.Forms.Cursors]::SizeAll
+$form.Controls.Add($titleBar)
 
+# Title Bar Label
+$titleBarLabel = New-Object System.Windows.Forms.Label
+$titleBarLabel.Location = New-Object System.Drawing.Point(10, 0)
+$titleBarLabel.Size = New-Object System.Drawing.Size(300, 35)
+$titleBarLabel.Text = "Lilith Clicker"
+$titleBarLabel.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$titleBarLabel.ForeColor = [System.Drawing.Color]::FromArgb(180, 180, 180)
+$titleBarLabel.TextAlign = "MiddleLeft"
+$titleBarLabel.Cursor = [System.Windows.Forms.Cursors]::SizeAll
+$titleBar.Controls.Add($titleBarLabel)
 
+# Minimize Button
+$minimizeButton = New-Object System.Windows.Forms.Button
+$minimizeButton.Location = New-Object System.Drawing.Point(340, 0)
+$minimizeButton.Size = New-Object System.Drawing.Size(40, 35)
+$minimizeButton.Text = "_"
+$minimizeButton.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
+$minimizeButton.ForeColor = [System.Drawing.Color]::FromArgb(180, 180, 180)
+$minimizeButton.BackColor = [System.Drawing.Color]::FromArgb(24, 24, 24)
+$minimizeButton.FlatStyle = "Flat"
+$minimizeButton.FlatAppearance.BorderSize = 0
+$minimizeButton.Cursor = [System.Windows.Forms.Cursors]::Hand
+$minimizeButton.Add_Click({
+    $form.WindowState = "Minimized"
+})
+$minimizeButton.Add_MouseEnter({
+    $minimizeButton.BackColor = [System.Drawing.Color]::FromArgb(50, 50, 50)
+})
+$minimizeButton.Add_MouseLeave({
+    $minimizeButton.BackColor = [System.Drawing.Color]::FromArgb(24, 24, 24)
+})
+$titleBar.Controls.Add($minimizeButton)
 
-function Hide-ExtensionBar {
+# Close Button
+$closeButton = New-Object System.Windows.Forms.Button
+$closeButton.Location = New-Object System.Drawing.Point(380, 0)
+$closeButton.Size = New-Object System.Drawing.Size(40, 35)
+$closeButton.Text = "X"
+$closeButton.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$closeButton.ForeColor = [System.Drawing.Color]::FromArgb(180, 180, 180)
+$closeButton.BackColor = [System.Drawing.Color]::FromArgb(24, 24, 24)
+$closeButton.FlatStyle = "Flat"
+$closeButton.FlatAppearance.BorderSize = 0
+$closeButton.Cursor = [System.Windows.Forms.Cursors]::Hand
+$closeButton.Add_Click({
+    $form.Close()
+})
+$closeButton.Add_MouseEnter({
+    $closeButton.BackColor = [System.Drawing.Color]::FromArgb(200, 50, 50)
+})
+$closeButton.Add_MouseLeave({
+    $closeButton.BackColor = [System.Drawing.Color]::FromArgb(24, 24, 24)
+})
+$titleBar.Controls.Add($closeButton)
 
-    $windows = Get-Process | Where-Object { $_.MainWindowTitle -ne "" }
+# Dragging functionality for title bar
+$titleBar.Add_MouseDown({
+    param($sender, $e)
+    if ($e.Button -eq [System.Windows.Forms.MouseButtons]::Left) {
+        $script:isDragging = $true
+        $script:dragStart = $e.Location
+    }
+})
 
-    foreach ($window in $windows) {
+$titleBar.Add_MouseMove({
+    param($sender, $e)
+    if ($script:isDragging) {
+        $newLocation = $form.Location
+        $newLocation.X += $e.X - $script:dragStart.X
+        $newLocation.Y += $e.Y - $script:dragStart.Y
+        $form.Location = $newLocation
+    }
+})
 
+$titleBar.Add_MouseUp({
+    param($sender, $e)
+    $script:isDragging = $false
+})
 
-            try {
-                $hwnd = $window.MainWindowHandle
-                $null = [void][System.Runtime.Interopservices.Marshal]::GetDelegateForFunctionPointer([System.Runtime.Interopservices.Marshal]::GetDelegateForFunctionPointer([System.IntPtr]::Zero, [System.IntPtr]), [System.Type])::ShowWindow($hwnd, 0)  # 0 = ocultar
-            } catch {
-                Write-Host "Error with extension."
-            }
+# Dragging functionality for title bar label (so dragging works on text too)
+$titleBarLabel.Add_MouseDown({
+    param($sender, $e)
+    if ($e.Button -eq [System.Windows.Forms.MouseButtons]::Left) {
+        $script:isDragging = $true
+        $offsetX = $e.X + $titleBarLabel.Location.X
+        $script:dragStart = New-Object System.Drawing.Point($offsetX, $e.Y)
+    }
+})
+
+$titleBarLabel.Add_MouseMove({
+    param($sender, $e)
+    if ($script:isDragging) {
+        $newLocation = $form.Location
+        $offsetX = $script:dragStart.X - $titleBarLabel.Location.X
+        $newLocation.X += $e.X - $offsetX
+        $newLocation.Y += $e.Y - $script:dragStart.Y
+        $form.Location = $newLocation
+    }
+})
+
+$titleBarLabel.Add_MouseUp({
+    param($sender, $e)
+    $script:isDragging = $false
+})
+
+# Title Label
+$titleLabel = New-Object System.Windows.Forms.Label
+$titleLabel.Location = New-Object System.Drawing.Point(0, 50)
+$titleLabel.Size = New-Object System.Drawing.Size(420, 40)
+$titleLabel.Text = "LILITH CLICKER"
+$titleLabel.Font = New-Object System.Drawing.Font("Segoe UI", 20, [System.Drawing.FontStyle]::Bold)
+$titleLabel.ForeColor = [System.Drawing.Color]::FromArgb(200, 200, 200)
+$titleLabel.TextAlign = "MiddleCenter"
+$form.Controls.Add($titleLabel)
+
+# Subtitle
+$subtitleLabel = New-Object System.Windows.Forms.Label
+$subtitleLabel.Location = New-Object System.Drawing.Point(0, 90)
+$subtitleLabel.Size = New-Object System.Drawing.Size(420, 20)
+$subtitleLabel.Text = "--- <3 ---"
+$subtitleLabel.Font = New-Object System.Drawing.Font("Segoe UI", 9)
+$subtitleLabel.ForeColor = [System.Drawing.Color]::FromArgb(120, 120, 120)
+$subtitleLabel.TextAlign = "MiddleCenter"
+$form.Controls.Add($subtitleLabel)
+
+# Status Panel
+$statusPanel = New-Object System.Windows.Forms.Panel
+$statusPanel.Location = New-Object System.Drawing.Point(50, 130)
+$statusPanel.Size = New-Object System.Drawing.Size(320, 80)
+$statusPanel.BackColor = [System.Drawing.Color]::FromArgb(24, 24, 24)
+$form.Controls.Add($statusPanel)
+
+# Status Indicator
+$statusIndicator = New-Object System.Windows.Forms.Panel
+$statusIndicator.Location = New-Object System.Drawing.Point(125, 15)
+$statusIndicator.Size = New-Object System.Drawing.Size(12, 12)
+$statusIndicator.BackColor = [System.Drawing.Color]::FromArgb(180, 180, 180)
+$statusPanel.Controls.Add($statusIndicator)
+
+$statusLabel = New-Object System.Windows.Forms.Label
+$statusLabel.Location = New-Object System.Drawing.Point(145, 10)
+$statusLabel.Size = New-Object System.Drawing.Size(150, 22)
+$statusLabel.Text = "DISABLED"
+$statusLabel.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
+$statusLabel.ForeColor = [System.Drawing.Color]::FromArgb(180, 180, 180)
+$statusLabel.TextAlign = "MiddleLeft"
+$statusPanel.Controls.Add($statusLabel)
+
+$hotkeyLabel = New-Object System.Windows.Forms.Label
+$hotkeyLabel.Location = New-Object System.Drawing.Point(10, 45)
+$hotkeyLabel.Size = New-Object System.Drawing.Size(300, 25)
+$hotkeyLabel.Text = "Hotkey: F6 | Made by lily"
+$hotkeyLabel.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$hotkeyLabel.ForeColor = [System.Drawing.Color]::FromArgb(100, 100, 100)
+$hotkeyLabel.TextAlign = "MiddleCenter"
+$statusPanel.Controls.Add($hotkeyLabel)
+
+# Toggle Button
+$toggleButton = New-Object System.Windows.Forms.Button
+$toggleButton.Location = New-Object System.Drawing.Point(110, 230)
+$toggleButton.Size = New-Object System.Drawing.Size(200, 50)
+$toggleButton.Text = "START (F6)"
+$toggleButton.Font = New-Object System.Drawing.Font("Segoe UI", 11, [System.Drawing.FontStyle]::Bold)
+$toggleButton.BackColor = [System.Drawing.Color]::FromArgb(80, 80, 80)
+$toggleButton.ForeColor = [System.Drawing.Color]::White
+$toggleButton.FlatStyle = "Flat"
+$toggleButton.FlatAppearance.BorderSize = 0
+$toggleButton.Cursor = [System.Windows.Forms.Cursors]::Hand
+
+$toggleFunction = {
+    $script:isEnabled = -not $script:isEnabled
+    if ($script:isEnabled) {
+        $toggleButton.Text = "STOP ($($script:hotkeyName))"
+        $toggleButton.BackColor = [System.Drawing.Color]::FromArgb(140, 140, 140)
+        $statusLabel.Text = "ACTIVE"
+        $statusLabel.ForeColor = [System.Drawing.Color]::FromArgb(220, 220, 220)
+        $statusIndicator.BackColor = [System.Drawing.Color]::FromArgb(100, 220, 120)
+        $script:leftLastClick = [DateTime]::MinValue
+        $script:rightLastClick = [DateTime]::MinValue
+        $script:mainTimer.Start()
+    } else {
+        $toggleButton.Text = "START ($($script:hotkeyName))"
+        $toggleButton.BackColor = [System.Drawing.Color]::FromArgb(80, 80, 80)
+        $statusLabel.Text = "DISABLED"
+        $statusLabel.ForeColor = [System.Drawing.Color]::FromArgb(180, 180, 180)
+        $statusIndicator.BackColor = [System.Drawing.Color]::FromArgb(180, 180, 180)
+        $script:mainTimer.Stop()
+    }
+}
+
+$toggleButton.Add_Click($toggleFunction)
+$form.Controls.Add($toggleButton)
+
+# Separator Line
+$separator1 = New-Object System.Windows.Forms.Panel
+$separator1.Location = New-Object System.Drawing.Point(50, 300)
+$separator1.Size = New-Object System.Drawing.Size(320, 1)
+$separator1.BackColor = [System.Drawing.Color]::FromArgb(60, 60, 60)
+$form.Controls.Add($separator1)
+
+# Hotkey Group
+$hotkeyGroupLabel = New-Object System.Windows.Forms.Label
+$hotkeyGroupLabel.Location = New-Object System.Drawing.Point(50, 315)
+$hotkeyGroupLabel.Size = New-Object System.Drawing.Size(150, 22)
+$hotkeyGroupLabel.Text = "Toggle Hotkey"
+$hotkeyGroupLabel.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$hotkeyGroupLabel.ForeColor = [System.Drawing.Color]::FromArgb(200, 200, 200)
+$form.Controls.Add($hotkeyGroupLabel)
+
+$hotkeyTextbox = New-Object System.Windows.Forms.TextBox
+$hotkeyTextbox.Location = New-Object System.Drawing.Point(220, 313)
+$hotkeyTextbox.Size = New-Object System.Drawing.Size(150, 28)
+$hotkeyTextbox.Text = "F6"
+$hotkeyTextbox.Font = New-Object System.Drawing.Font("Consolas", 11)
+$hotkeyTextbox.BackColor = [System.Drawing.Color]::FromArgb(48, 48, 48)
+$hotkeyTextbox.ForeColor = [System.Drawing.Color]::FromArgb(220, 220, 220)
+$hotkeyTextbox.BorderStyle = "FixedSingle"
+$hotkeyTextbox.ReadOnly = $true
+$hotkeyTextbox.TextAlign = "Center"
+$hotkeyTextbox.Add_Click({
+    $hotkeyTextbox.Text = "Press key..."
+    $hotkeyTextbox.BackColor = [System.Drawing.Color]::FromArgb(70, 70, 70)
+    $script:capturingHotkey = $true
+    $hotkeyTextbox.Focus()
+})
+$hotkeyTextbox.Add_KeyDown({
+    param($sender, $e)
+    if ($script:capturingHotkey) {
+        $vk = $e.KeyValue
+        if ($vk -ne 1 -and $vk -ne 2 -and $vk -ne 4) {
+            $script:hotkeyVK = $vk
+            $script:hotkeyName = $e.KeyCode.ToString()
+            $hotkeyTextbox.Text = $script:hotkeyName
+            $hotkeyTextbox.BackColor = [System.Drawing.Color]::FromArgb(48, 48, 48)
+            $hotkeyLabel.Text = "Hotkey: $($script:hotkeyName) | Made by lily"
+            $toggleButton.Text = if ($script:isEnabled) { "STOP ($($script:hotkeyName))" } else { "START ($($script:hotkeyName))" }
         }
+        $script:capturingHotkey = $false
+        $e.SuppressKeyPress = $true
+        $e.Handled = $true
     }
-}
+})
+$form.Controls.Add($hotkeyTextbox)
 
+# CPS Control
+$cpsLabel = New-Object System.Windows.Forms.Label
+$cpsLabel.Location = New-Object System.Drawing.Point(50, 355)
+$cpsLabel.Size = New-Object System.Drawing.Size(200, 22)
+$cpsLabel.Text = "Clicks Per Second"
+$cpsLabel.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$cpsLabel.ForeColor = [System.Drawing.Color]::FromArgb(200, 200, 200)
+$form.Controls.Add($cpsLabel)
 
-function DateModificator {
+$cpsValue = New-Object System.Windows.Forms.Label
+$cpsValue.Location = New-Object System.Drawing.Point(320, 355)
+$cpsValue.Size = New-Object System.Drawing.Size(50, 22)
+$cpsValue.Text = "10"
+$cpsValue.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$cpsValue.ForeColor = [System.Drawing.Color]::FromArgb(160, 160, 160)
+$cpsValue.TextAlign = "MiddleRight"
+$form.Controls.Add($cpsValue)
 
-$path = Read-Host "Cheat Path:"
+$cpsSlider = New-Object System.Windows.Forms.TrackBar
+$cpsSlider.Location = New-Object System.Drawing.Point(50, 380)
+$cpsSlider.Size = New-Object System.Drawing.Size(320, 45)
+$cpsSlider.Minimum = 1
+$cpsSlider.Maximum = 50
+$cpsSlider.Value = 10
+$cpsSlider.TickFrequency = 5
+$cpsSlider.BackColor = [System.Drawing.Color]::FromArgb(32, 32, 32)
+$cpsSlider.Add_ValueChanged({
+    $script:cps = $cpsSlider.Value
+    $cpsValue.Text = $script:cps.ToString()
+})
+$form.Controls.Add($cpsSlider)
 
-if (Test-Path $path) {
-    $newDate = New-Object DateTime(2023, 2, 14, 12, 0, 0)
-    (Get-Item $path).LastWriteTime = $newDate
-    Write-Host "Correctly Modify new date = $newDate"
-} else {
-    Write-Host "Incorrect Path." -ForegroundColor DarkRed
-}
+# Randomization Control
+$randLabel = New-Object System.Windows.Forms.Label
+$randLabel.Location = New-Object System.Drawing.Point(50, 425)
+$randLabel.Size = New-Object System.Drawing.Size(200, 22)
+$randLabel.Text = "Randomization"
+$randLabel.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$randLabel.ForeColor = [System.Drawing.Color]::FromArgb(200, 200, 200)
+$form.Controls.Add($randLabel)
 
-}
+$randValue = New-Object System.Windows.Forms.Label
+$randValue.Location = New-Object System.Drawing.Point(305, 425)
+$randValue.Size = New-Object System.Drawing.Size(65, 22)
+$randValue.Text = "0%"
+$randValue.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$randValue.ForeColor = [System.Drawing.Color]::FromArgb(160, 160, 160)
+$randValue.TextAlign = "MiddleRight"
+$form.Controls.Add($randValue)
 
-function StopServices {
-    Write-Host "Select Option:" -ForegroundColor DarkRed
-    Write-Host ""
-    Write-Host "1) Bam" -ForegroundColor DarkRed
-    Write-Host "2) DPS" -ForegroundColor DarkRed
-    Write-Host "3) DiagTrack" -ForegroundColor DarkRed
-    Write-Host "4) Sysmain" -ForegroundColor DarkRed
-    Write-Host ""
-   
-    $opcion = Read-Host "Select"
+$randSlider = New-Object System.Windows.Forms.TrackBar
+$randSlider.Location = New-Object System.Drawing.Point(50, 450)
+$randSlider.Size = New-Object System.Drawing.Size(320, 45)
+$randSlider.Minimum = 0
+$randSlider.Maximum = 100
+$randSlider.Value = 0
+$randSlider.TickFrequency = 10
+$randSlider.BackColor = [System.Drawing.Color]::FromArgb(32, 32, 32)
+$randSlider.Add_ValueChanged({
+    $script:randomization = $randSlider.Value
+    $randValue.Text = "$($script:randomization)%"
+})
+$form.Controls.Add($randSlider)
+
+# Debug Label
+$debugLabel = New-Object System.Windows.Forms.Label
+$debugLabel.Location = New-Object System.Drawing.Point(50, 495)
+$debugLabel.Size = New-Object System.Drawing.Size(320, 20)
+$debugLabel.Text = "Ready"
+$debugLabel.Font = New-Object System.Drawing.Font("Consolas", 8)
+$debugLabel.ForeColor = [System.Drawing.Color]::FromArgb(80, 80, 80)
+$form.Controls.Add($debugLabel)
+
+# Main Timer
+$script:mainTimer = New-Object System.Windows.Forms.Timer
+$script:mainTimer.Interval = 1
+$script:mainTimer.Add_Tick({
+    if (-not $script:isEnabled) { return }
+
+    $isLeftDown = Test-KeyPressed -VirtualKey ([Win32]::VK_LBUTTON)
+    $isRightDown = Test-KeyPressed -VirtualKey ([Win32]::VK_RBUTTON)
     
-    switch ($opcion) {
-        "1" { cmd /c "sc stop Bam"; Write-Host "'Bam' Stopped." -ForegroundColor DarkRed }
-        "2" { cmd /c "sc stop Dps"; Write-Host "'DPS Stopped" -ForegroundColor DarkRed }
-        "3" { cmd /c "sc stop Diagtrack"; Write-Host "DiagTrack' Stopped" -ForegroundColor DarkRed }
-        "4" { cmd /c "sc stop Sysmain"; Write-Host "'Sysmain' Stopped" -ForegroundColor DarkRed }
-        default { Write-Host "Opción no válida." -ForegroundColor DarkRed }
-        
-        
-    }
-}
-
-function ChangeExtension {
-
-
-$path = Read-Host "Enter the path file"
-
-if (-Not (Test-Path $path)) {
-    Write-Host "unknown file. Verify the path."
-    exit
-}
-
-$newExtension = Read-Host "enter new extension (Opciones: Exe, mp4, PDF, DLL, Png, Ini, Jar)"
-
-switch ($newExtension.ToLower()) {
-    'exe' { $newExtension = 'exe' }
-    'mp4' { $newExtension = 'mp4' }
-    'pdf' { $newExtension = 'pdf' }
-    'dll' { $newExtension = 'dll' }
-    'png' { $newExtension = 'png' }
-    'ini' { $newExtension = 'ini' }
-    'Jar' {$newExtension = 'Jar'}
-    default {
-        Write-Host "Invalid extension. select: Exe, mp4, PDF, DLL. , INI, Jar"
-        exit
-    }
-}
-
-$filenameWithoutExtension = [System.IO.Path]::GetFileNameWithoutExtension($path)
-$directory = [System.IO.Path]::GetDirectoryName($path)
-$newPath = Join-Path -Path $directory -ChildPath "$filenameWithoutExtension.$newExtension"
-
-Rename-Item -Path $path -NewName $newPath
-Write-Host "Extension Changed !: $newPath"
-
-
-
-}
-
-function ExecuteCheats {
-    Write-Host "Execute Cheats:" -ForegroundColor DarkRed
-    Write-Host ""
-    Write-Host "1) Start Jar"
-    Write-Host "2) Start exe"
-    Write-Host "3) Start dll"
-    Write-Host ""
+    $now = [DateTime]::Now
     
-    $opcion = Read-Host "Select"
-    $path = Read-Host "Cheat Path"
-
-
-    switch ($opcion) {
-        "1" { cmd /c "java -jar $path" }
-        "2" { cmd /c "start $path /c vschost.exe"; Write-Host "Starting exe: $path" -ForegroundColor DarkRed }
-        "3" { cmd.exe /c "regsvr32 $path"  "Starting dll: $path" -ForegroundColor DarkRed }
-        default { Write-Host "Incorrect Option." -ForegroundColor DarkRed }
-    }
-
-}
-
-
-
-
-
-function Attrib {
+    $randomPercent = $script:randomization / 100.0
+    $randomMultiplier = 1.0 + ((Get-Random -Minimum -100 -Maximum 101) / 100.0) * $randomPercent
+    $actualCps = [Math]::Max(0.5, $script:cps * $randomMultiplier)
+    $intervalMs = 1000.0 / $actualCps
     
-    Write-Host "Attrib Hidden" -ForegroundColor DarkRed
-    Write-Host ""
+    $debugLabel.Text = "L:$isLeftDown R:$isRightDown | Actual CPS: $([Math]::Round($actualCps, 1))"
 
-    $path = Read-Host "Cheat Path"
+    if ($isLeftDown) {
+        $elapsed = ($now - $script:leftLastClick).TotalMilliseconds
+        if ($script:leftLastClick -eq [DateTime]::MinValue -or $elapsed -ge $intervalMs) {
+            Invoke-Click -Button "Left"
+            $script:leftLastClick = $now
 
-    switch ($path) {
-        "Cheat" { cmd /c "attrib +h $path" }
+            $randomMultiplier = 1.0 + ((Get-Random -Minimum -100 -Maximum 101) / 100.0) * $randomPercent
+            $actualCps = [Math]::Max(0.5, $script:cps * $randomMultiplier)
+            $intervalMs = 1000.0 / $actualCps
+        }
+    } else {
+        $script:leftLastClick = [DateTime]::MinValue
     }
 
+    if ($isRightDown) {
+        $elapsed = ($now - $script:rightLastClick).TotalMilliseconds
+        if ($script:rightLastClick -eq [DateTime]::MinValue -or $elapsed -ge $intervalMs) {
+            Invoke-Click -Button "Right"
+            $script:rightLastClick = $now
+
+            $randomMultiplier = 1.0 + ((Get-Random -Minimum -100 -Maximum 101) / 100.0) * $randomPercent
+            $actualCps = [Math]::Max(0.5, $script:cps * $randomMultiplier)
+            $intervalMs = 1000.0 / $actualCps
+        }
+    } else {
+        $script:rightLastClick = [DateTime]::MinValue
+    }
+})
+
+# Hotkey Timer
+$script:hotkeyTimer = New-Object System.Windows.Forms.Timer
+$script:hotkeyTimer.Interval = 20
+$script:lastHotkeyDown = $false
+$script:hotkeyTimer.Add_Tick({
+    if ($script:hotkeyVK -eq 1 -or $script:hotkeyVK -eq 2) { return }
+    
+    $isDown = Test-KeyPressed -VirtualKey $script:hotkeyVK
+    
+    if ($isDown -and -not $script:lastHotkeyDown) {
+        & $toggleFunction
+    }
+    
+    $script:lastHotkeyDown = $isDown
+})
+$script:hotkeyTimer.Start()
+
+$form.Add_FormClosing({
+    if ($script:mainTimer) { $script:mainTimer.Stop(); $script:mainTimer.Dispose() }
+    if ($script:hotkeyTimer) { $script:hotkeyTimer.Stop(); $script:hotkeyTimer.Dispose() }
+})
+
+$form.Add_Shown({$form.Activate()})
+[void]$form.ShowDialog()
+
+
 }
-
-
-
-
-$line = "=" * 29
-$separator = "-" * 27
 
 $cuadro = @"
-____________________________________________
-|       Select:                             |
-|                                           |
-|  1) Clear-Logs        2) Execute          |
-|  3) Stop-Services     4) Hide-Record      |
-|  5) Date-Modificator  6) Extension-Modify |
-|  7) Attrib                                |                            
-|___________________________________________|
+============================================
+  1) Clear-Logs        2) Execute
+  3) Stop-Services     4) Hide-Record
+  5) Date-Modificator  6) Extension-Modify
+  7) Attrib            8) Files-Replace
+  0) Exit              9) Clicker
+============================================
 "@
 
+$salir = $false
 
-Write-Host $cuadro
+do {
+    Clear-Host
+    Write-Host $cuadro -ForegroundColor DarkRed
 
-$opcion = Read-Host "Select Category"
-switch ($opcion) {
-    "1" { ClearLogs }
-    "2" { ExecuteCheats }
-    "3" { StopServices }
-    "4" { HideRecord }
-    "5" { DateModificator }
-    "6" { ChangeExtension }
-    "7" { Attrib }
-    default { Write-Host "Incorrectly Option" -ForegroundColor DarkRed }
-}
+    $opcion = Read-Host "Select option"
+
+    switch ($opcion) {
+        "1" { ClearLogs }
+        "2" { ExecuteCheats }
+        "3" { StopServices }
+        "5" { DateModificator }
+        "6" { ChangeExtension }
+        "7" { Attrib }
+        "8" { Files-Replace }
+        "9" { Clicker }
+        "0" { 
+
+            Write-Host "Closing menu..." -ForegroundColor DarkRed
+            $salir = $true
+        }
+        default { 
+            Write-Host "Invalid option" -ForegroundColor Red 
+        }
+    }
+
+    if (-not $salir) {
+        Read-Host "`nPress ENTER to return to menu"
+    }
+
+} while (-not $salir)
+
+Write-Host "Script closed"
+return
