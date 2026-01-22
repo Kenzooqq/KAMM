@@ -62,7 +62,7 @@ Write-Host @"
 function ClearLogs {
     Write-Host "Clear Logs:" -ForegroundColor Cyan
     Write-Host "1) Journal"
-    Write-Host "2) Regedit"
+    Write-Host "2) Regedit ( Bam DeleteKey ) "
 
     $opcion = Read-Host "Select Option"
     switch ($opcion) {
@@ -71,11 +71,56 @@ function ClearLogs {
             Write-Host "Journal deleted" -ForegroundColor DarkRed
         }
         "2" {
-            Write-Host "Clearing Registry logs..." -ForegroundColor DarkRed
-            cmd /c "reg delete HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Compatibility Assistant\Store /f /va"
+            Write-Host "DeleteKey"
+
+do {
+    $exeName = Read-Host "Ingresá el nombre del exe (ej: notepad.exe)"
+} while ([string]::IsNullOrWhiteSpace($exeName))
+
+$exeName = $exeName.ToLower()
+$deleted = 0
+
+$bamRoots = @(
+    "HKLM:\SYSTEM\CurrentControlSet\Services\bam\UserSettings",
+    "HKLM:\SYSTEM\CurrentControlSet\Services\bam\State\UserSettings"
+)
+
+foreach ($bamRoot in $bamRoots) {
+
+    if (-not (Test-Path $bamRoot)) { continue }
+
+    Get-ChildItem $bamRoot | ForEach-Object {
+
+        $userKey = $_.PsPath
+
+        try {
+            $props = Get-ItemProperty $userKey
+        } catch {
+            return
+        }
+
+        foreach ($prop in $props.PSObject.Properties) {
+
+            if ($prop.Name -like "*$exeName") {
+                Remove-ItemProperty -Path $userKey -Name $prop.Name -Force
+                Write-Host "[+] Eliminado:" -ForegroundColor Green
+                Write-Host "    $($prop.Name)"
+                $deleted++
+            }
         }
     }
 }
+
+if ($deleted -eq 0) {
+    Write-Host "`n[-] KeysNoEncontradas." -ForegroundColor Yellow
+} else {
+    Write-Host "`n[✔] KeysBorradas: $deleted" -ForegroundColor Green
+}
+     
+     }
+        }
+    }
+
 
 function StopServices {
     Write-Host "1) Bam"
